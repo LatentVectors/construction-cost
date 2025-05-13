@@ -1,0 +1,16 @@
+loguru
+mkdocs
+pip
+pytest
+python-dotenv
+ruff
+tqdm
+typer
+requests
+pandas
+pdfplumber
+openpyxl
+boto3
+matplotlib
+scikit-learn
+-e .
