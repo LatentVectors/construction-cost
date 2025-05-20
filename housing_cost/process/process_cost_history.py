@@ -1,14 +1,16 @@
 from pathlib import Path
 import re
 
+import cpi  # type: ignore
 import pandas as pd
 
 
-def process_cost_history(path: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+def process_cost_history(path: Path, target_year: int = 2024) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Process the cost history data from a CSV file.
 
     Args:
         path (Path): The path to the CSV file containing the cost history data.
+        target_year (int): The year to adjust the cost history to.
 
     Returns:
         tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the processed cost history
@@ -48,4 +50,12 @@ def process_cost_history(path: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     dfc = dfc.drop(columns=["difference", "percent_total", "total", "Total Sales Price ($)"])
     dfc = dfc[dfc.mean().sort_values(ascending=False).index]
+    df = df.reset_index().melt(id_vars=["year"], var_name="category", value_name="percent")
+    dfc = dfc.reset_index().melt(id_vars=["year"], var_name="category", value_name="value")
+    years = {int(y): cpi.get(int(y)) for y in df["year"].unique()}
+    max_cpi = cpi.get(target_year)
+    dfc["cpi"] = dfc["year"].apply(lambda x: years[int(x)])
+    dfc["usd_adjusted"] = dfc["value"] * (max_cpi / dfc["cpi"])
+    dfc = dfc[["year", "category", "value", "usd_adjusted"]]
+    dfc.columns = pd.Index(["year", "category", "usd", "usd_adjusted"])
     return df, dfc

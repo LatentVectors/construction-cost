@@ -1,16 +1,23 @@
-from pathlib import Path
-
 import boto3
 from loguru import logger
 import pandas as pd
 import requests
-from tqdm import tqdm  # type: ignore
 import typer
 
-from housing_cost.config import INTERIM_DATA_DIR, PROCESSED_DATA_DIR, RAW_DATA_DIR
+from housing_cost.config import (
+    COST_BREAKDOWN,
+    COST_DETAIL_SUBTOTALS,
+    COST_DETAIL_TOTALS,
+    COST_HISTORY_PERCENT,
+    COST_HISTORY_USD,
+    INTERIM_DATA_DIR,
+    MEDIAN_INCOME,
+    RAW_DATA_DIR,
+)
 from housing_cost.pdf import extract_pdf_tables
 from housing_cost.process import (
     process_construction_cost_2024,
+    process_cost_breakdown,
     process_cost_history,
     process_median_income,
 )
@@ -19,19 +26,8 @@ app = typer.Typer()
 
 
 @app.command()
-def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    input_path: Path = RAW_DATA_DIR / "dataset.csv",
-    output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
-    # ----------------------------------------------
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Processing dataset...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Processing dataset complete.")
-    # -----------------------------------------
+def main():
+    logger.info("Welcome to the Housing Cost Dataset!")
 
 
 @app.command()
@@ -81,8 +77,8 @@ def process():
     totals, subtotals = process_construction_cost_2024(
         INTERIM_DATA_DIR / "NABH Construction Cost - 2024__table_3__values.csv"
     )
-    totals.to_csv(PROCESSED_DATA_DIR / "construction_cost_totals.csv")
-    subtotals.to_csv(PROCESSED_DATA_DIR / "construction_cost_subtotals.csv")
+    totals.to_csv(COST_DETAIL_TOTALS)
+    subtotals.to_csv(COST_DETAIL_SUBTOTALS)
 
     logger.info("Processing cost history...")
     part_1_path = INTERIM_DATA_DIR / "NABH Construction Cost - 2024__table_5__values.csv"
@@ -91,8 +87,8 @@ def process():
     df_2, dfc_2 = process_cost_history(part_2_path)
     df = pd.concat([df_1, df_2])
     dfc = pd.concat([dfc_1, dfc_2])
-    df.to_csv(PROCESSED_DATA_DIR / "construction_cost_history.csv")
-    dfc.to_csv(PROCESSED_DATA_DIR / "construction_cost_history_usd.csv")
+    df.to_csv(COST_HISTORY_PERCENT)
+    dfc.to_csv(COST_HISTORY_USD)
 
     logger.info("Processing median income...")
     inflation_rate = 1.029
@@ -102,7 +98,11 @@ def process():
         inflation_rate,
         income_growth_rate,
     )
-    df.to_csv(PROCESSED_DATA_DIR / "median_income.csv")
+    df.to_csv(MEDIAN_INCOME)
+
+    logger.info("Processing cost breakdown...")
+    df = process_cost_breakdown()
+    df.to_csv(COST_BREAKDOWN)
 
 
 if __name__ == "__main__":

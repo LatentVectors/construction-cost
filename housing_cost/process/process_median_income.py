@@ -60,6 +60,8 @@ def process_median_income(
             }
         ]
     )
+    df = df.groupby("year").first().reset_index()
     df = pd.concat([df, projected])
     df.sort_values(by="year", ascending=False, inplace=True)
+    df = df.set_index("year")
     return df

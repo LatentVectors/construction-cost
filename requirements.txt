@@ -13,4 +13,6 @@ openpyxl
 boto3
 matplotlib
 scikit-learn
+cpi
+seaborn
 -e .

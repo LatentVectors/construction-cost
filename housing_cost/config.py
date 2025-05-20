@@ -16,6 +16,14 @@ INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
+COST_HISTORY_USD = PROCESSED_DATA_DIR / "construction_cost_history_usd.csv"
+COST_HISTORY_PERCENT = PROCESSED_DATA_DIR / "construction_cost_history.csv"
+COST_DETAIL_SUBTOTALS = PROCESSED_DATA_DIR / "construction_cost_subtotals.csv"
+COST_DETAIL_TOTALS = PROCESSED_DATA_DIR / "construction_cost_totals.csv"
+COST_BREAKDOWN = PROCESSED_DATA_DIR / "cost_breakdown.csv"
+MEDIAN_INCOME = PROCESSED_DATA_DIR / "median_income.csv"
+SQUARE_FOOTAGE = PROCESSED_DATA_DIR / "square_footage.csv"
+
 MODELS_DIR = PROJ_ROOT / "models"
 
 REPORTS_DIR = PROJ_ROOT / "reports"
